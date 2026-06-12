@@ -1,0 +1,222 @@
+{
+  "last_node_id": 11,
+  "last_link_id": 11,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadVideo",
+      "pos": [0, 0],
+      "size": [315, 100],
+      "properties": {},
+      "widgets_values": ["example.mp4"],
+      "inputs": [],
+      "outputs": [
+        {"name": "VIDEO", "type": "VIDEO", "links": [1], "slot_index": 0}
+      ],
+      "title": "Load Video",
+      "type": "LoadVideo",
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "type": "GetVideoComponents",
+      "pos": [0, 160],
+      "size": [250, 100],
+      "properties": {},
+      "widgets_values": [],
+      "inputs": [
+        {"name": "video", "type": "VIDEO", "link": 1}
+      ],
+      "outputs": [
+        {"name": "images", "type": "IMAGE", "links": [2, 3], "slot_index": 0},
+        {"name": "audio", "type": "AUDIO", "links": null, "slot_index": 1},
+        {"name": "frame_rate", "type": "FLOAT", "links": null, "slot_index": 2}
+      ],
+      "title": "Get Video Components",
+      "type": "GetVideoComponents",
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "type": "CheckpointLoaderSimple",
+      "pos": [0, 320],
+      "size": [350, 100],
+      "properties": {},
+      "widgets_values": ["sam3.1_multiplex_fp16.safetensors"],
+      "inputs": [],
+      "outputs": [
+        {"name": "MODEL", "type": "MODEL", "links": [4, 5], "slot_index": 0},
+        {"name": "CLIP", "type": "CLIP", "links": [6], "slot_index": 1},
+        {"name": "VAE", "type": "VAE", "links": null, "slot_index": 2}
+      ],
+      "title": "Load SAM3 Checkpoint",
+      "type": "CheckpointLoaderSimple",
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "type": "CLIPTextEncode",
+      "pos": [0, 480],
+      "size": [350, 80],
+      "properties": {},
+      "widgets_values": ["yellow school bus"],
+      "inputs": [
+        {"name": "clip", "type": "CLIP", "link": 6}
+      ],
+      "outputs": [
+        {"name": "CONDITIONING", "type": "CONDITIONING", "links": [7], "slot_index": 0}
+      ],
+      "title": "Text prompt for first frame",
+      "type": "CLIPTextEncode",
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "type": "ImageFromBatch",
+      "pos": [400, 0],
+      "size": [240, 100],
+      "properties": {},
+      "widgets_values": [0, 1],
+      "inputs": [
+        {"name": "image", "type": "IMAGE", "link": 2}
+      ],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [8], "slot_index": 0}
+      ],
+      "title": "Pick first frame",
+      "type": "ImageFromBatch",
+      "flags": {}
+    },
+    {
+      "id": 6,
+      "type": "SAM3_Detect",
+      "pos": [400, 160],
+      "size": [320, 280],
+      "properties": {},
+      "widgets_values": [0.5, 2, true],
+      "inputs": [
+        {"name": "model", "type": "MODEL", "link": 4},
+        {"name": "image", "type": "IMAGE", "link": 8},
+        {"name": "conditioning", "type": "CONDITIONING", "link": 7}
+      ],
+      "outputs": [
+        {"name": "masks", "type": "MASK", "links": [9], "slot_index": 0},
+        {"name": "bboxes", "type": "BBOX", "links": null, "slot_index": 1}
+      ],
+      "title": "SAM3 Detect (frame 0)",
+      "type": "SAM3_Detect",
+      "flags": {}
+    },
+    {
+      "id": 7,
+      "type": "SAM3_VideoTrack",
+      "pos": [780, 0],
+      "size": [320, 280],
+      "properties": {},
+      "widgets_values": [0.5, 4, 1],
+      "inputs": [
+        {"name": "images", "type": "IMAGE", "link": 3},
+        {"name": "model", "type": "MODEL", "link": 5},
+        {"name": "initial_mask", "type": "MASK", "link": 9}
+      ],
+      "outputs": [
+        {"name": "track_data", "type": "SAM3_TRACK_DATA", "links": [10, 11], "slot_index": 0}
+      ],
+      "title": "SAM3 Video Track (initial_mask)",
+      "type": "SAM3_VideoTrack",
+      "flags": {}
+    },
+    {
+      "id": 8,
+      "type": "SAM3_TrackToMask",
+      "pos": [1140, 0],
+      "size": [320, 100],
+      "properties": {},
+      "widgets_values": [""],
+      "inputs": [
+        {"name": "track_data", "type": "SAM3_TRACK_DATA", "link": 10}
+      ],
+      "outputs": [
+        {"name": "masks", "type": "MASK", "links": [12], "slot_index": 0}
+      ],
+      "title": "Track to Mask",
+      "type": "SAM3_TrackToMask",
+      "flags": {}
+    },
+    {
+      "id": 9,
+      "type": "MaskToImage",
+      "pos": [1500, 0],
+      "size": [200, 60],
+      "properties": {},
+      "widgets_values": [],
+      "inputs": [
+        {"name": "mask", "type": "MASK", "link": 12}
+      ],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [13], "slot_index": 0}
+      ],
+      "title": "Mask to Image",
+      "type": "MaskToImage",
+      "flags": {}
+    },
+    {
+      "id": 10,
+      "type": "PreviewImage",
+      "pos": [1740, 0],
+      "size": [400, 400],
+      "properties": {},
+      "widgets_values": [],
+      "inputs": [
+        {"name": "images", "type": "IMAGE", "link": 13}
+      ],
+      "outputs": [],
+      "title": "Mask Frames",
+      "type": "PreviewImage",
+      "flags": {}
+    },
+    {
+      "id": 11,
+      "type": "SAM3_TrackPreview",
+      "pos": [1140, 160],
+      "size": [320, 200],
+      "properties": {},
+      "widgets_values": [0.5, 24.0],
+      "inputs": [
+        {"name": "track_data", "type": "SAM3_TRACK_DATA", "link": 11},
+        {"name": "images", "type": "IMAGE", "link": 3}
+      ],
+      "outputs": [],
+      "title": "Visualize Track",
+      "type": "SAM3_TrackPreview",
+      "is_output_node": true,
+      "flags": {}
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "VIDEO"],
+    [2, 2, 0, 5, 0, "IMAGE"],
+    [3, 2, 0, 7, 0, "IMAGE"],
+    [4, 3, 0, 6, 0, "MODEL"],
+    [5, 3, 0, 7, 1, "MODEL"],
+    [6, 3, 1, 4, 0, "CLIP"],
+    [7, 4, 0, 6, 2, "CONDITIONING"],
+    [8, 5, 0, 6, 1, "IMAGE"],
+    [9, 6, 0, 7, 2, "MASK"],
+    [10, 7, 0, 8, 0, "SAM3_TRACK_DATA"],
+    [11, 7, 0, 11, 0, "SAM3_TRACK_DATA"],
+    [12, 8, 0, 9, 0, "MASK"],
+    [13, 9, 0, 10, 0, "IMAGE"]
+  ],
+  "groups": [
+    {"title": "Feature 6: Video Tracking (text-detect frame 0 -> propagate via initial_mask)", "bounding": [0, -50, 2180, 620], "color": "#a1322e"}
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [0, 0]
+    }
+  },
+  "version": 0.4
+}

@@ -1,0 +1,140 @@
+{
+  "last_node_id": 7,
+  "last_link_id": 6,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [0, 0],
+      "size": [315, 314],
+      "properties": {},
+      "widgets_values": ["example.png"],
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [1], "slot_index": 0}
+      ],
+      "title": "Load Image",
+      "type": "LoadImage",
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "type": "CheckpointLoaderSimple",
+      "pos": [0, 380],
+      "size": [350, 100],
+      "properties": {},
+      "widgets_values": ["sam3.1_multiplex_fp16.safetensors"],
+      "inputs": [],
+      "outputs": [
+        {"name": "MODEL", "type": "MODEL", "links": [2], "slot_index": 0},
+        {"name": "CLIP", "type": "CLIP", "links": null, "slot_index": 1},
+        {"name": "VAE", "type": "VAE", "links": null, "slot_index": 2}
+      ],
+      "title": "Load SAM3 Checkpoint",
+      "type": "CheckpointLoaderSimple",
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "type": "PrimitiveString",
+      "pos": [0, 540],
+      "size": [320, 80],
+      "properties": {},
+      "widgets_values": ["[{\"x\": 256, \"y\": 256}]"],
+      "inputs": [],
+      "outputs": [
+        {"name": "STRING", "type": "STRING", "links": [4], "slot_index": 0}
+      ],
+      "title": "Positive Points JSON (pixel coords)",
+      "type": "PrimitiveString",
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "type": "PrimitiveString",
+      "pos": [0, 660],
+      "size": [320, 80],
+      "properties": {},
+      "widgets_values": ["[{\"x\": 50, \"y\": 50}]"],
+      "inputs": [],
+      "outputs": [
+        {"name": "STRING", "type": "STRING", "links": [5], "slot_index": 0}
+      ],
+      "title": "Negative Points JSON (optional)",
+      "type": "PrimitiveString",
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "type": "SAM3_Detect",
+      "pos": [400, 0],
+      "size": [320, 280],
+      "properties": {},
+      "widgets_values": [0.5, 2, false],
+      "inputs": [
+        {"name": "model", "type": "MODEL", "link": 2},
+        {"name": "image", "type": "IMAGE", "link": 1},
+        {"name": "positive_coords", "type": "STRING", "link": 4},
+        {"name": "negative_coords", "type": "STRING", "link": 5}
+      ],
+      "outputs": [
+        {"name": "masks", "type": "MASK", "links": [6], "slot_index": 0},
+        {"name": "bboxes", "type": "BBOX", "links": null, "slot_index": 1}
+      ],
+      "title": "SAM3 Detect (Point Prompt)",
+      "type": "SAM3_Detect",
+      "flags": {}
+    },
+    {
+      "id": 6,
+      "type": "MaskToImage",
+      "pos": [780, 0],
+      "size": [200, 60],
+      "properties": {},
+      "widgets_values": [],
+      "inputs": [
+        {"name": "mask", "type": "MASK", "link": 6}
+      ],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7], "slot_index": 0}
+      ],
+      "title": "Mask to Image",
+      "type": "MaskToImage",
+      "flags": {}
+    },
+    {
+      "id": 7,
+      "type": "PreviewImage",
+      "pos": [1020, 0],
+      "size": [400, 400],
+      "properties": {},
+      "widgets_values": [],
+      "inputs": [
+        {"name": "images", "type": "IMAGE", "link": 7}
+      ],
+      "outputs": [],
+      "title": "Mask Preview",
+      "type": "PreviewImage",
+      "flags": {}
+    }
+  ],
+  "links": [
+    [1, 1, 0, 5, 1, "IMAGE"],
+    [2, 2, 0, 5, 0, "MODEL"],
+    [4, 3, 0, 5, 2, "STRING"],
+    [5, 4, 0, 5, 3, "STRING"],
+    [6, 5, 0, 6, 0, "MASK"],
+    [7, 6, 0, 7, 0, "IMAGE"]
+  ],
+  "groups": [
+    {"title": "Feature 3: Point Prompt Segmentation (JSON pixel coords)", "bounding": [0, -50, 1450, 800], "color": "#2e7d32"}
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [0, 0]
+    }
+  },
+  "version": 0.4
+}

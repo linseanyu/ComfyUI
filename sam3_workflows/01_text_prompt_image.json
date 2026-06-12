@@ -1,0 +1,153 @@
+{
+  "last_node_id": 7,
+  "last_link_id": 6,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [0, 0],
+      "size": [315, 314],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": ["example.png"],
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [1], "slot_index": 0}
+      ],
+      "title": "Load Image",
+      "type": "LoadImage",
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "type": "CheckpointLoaderSimple",
+      "pos": [0, 380],
+      "size": [350, 100],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": ["sam3.1_multiplex_fp16.safetensors"],
+      "inputs": [],
+      "outputs": [
+        {"name": "MODEL", "type": "MODEL", "links": [2], "slot_index": 0},
+        {"name": "CLIP", "type": "CLIP", "links": [3], "slot_index": 1},
+        {"name": "VAE", "type": "VAE", "links": null, "slot_index": 2}
+      ],
+      "title": "Load SAM3 Checkpoint",
+      "type": "CheckpointLoaderSimple",
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "type": "CLIPTextEncode",
+      "pos": [400, 380],
+      "size": [400, 100],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": ["car"],
+      "inputs": [
+        {"name": "clip", "type": "CLIP", "link": 3}
+      ],
+      "outputs": [
+        {"name": "CONDITIONING", "type": "CONDITIONING", "links": [4], "slot_index": 0}
+      ],
+      "title": "Text Prompt",
+      "type": "CLIPTextEncode",
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "type": "SAM3_Detect",
+      "pos": [400, 0],
+      "size": [320, 280],
+      "properties": {
+        "Node name for S&R": "SAM3_Detect"
+      },
+      "widgets_values": [0.5, 2, false],
+      "inputs": [
+        {"name": "model", "type": "MODEL", "link": 2},
+        {"name": "image", "type": "IMAGE", "link": 1},
+        {"name": "conditioning", "type": "CONDITIONING", "link": 4}
+      ],
+      "outputs": [
+        {"name": "masks", "type": "MASK", "links": [5], "slot_index": 0},
+        {"name": "bboxes", "type": "BBOX", "links": null, "slot_index": 1}
+      ],
+      "title": "SAM3 Detect",
+      "type": "SAM3_Detect",
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "type": "MaskToImage",
+      "pos": [780, 0],
+      "size": [200, 60],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {"name": "mask", "type": "MASK", "link": 5}
+      ],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [6], "slot_index": 0}
+      ],
+      "title": "Mask to Image",
+      "type": "MaskToImage",
+      "flags": {}
+    },
+    {
+      "id": 6,
+      "type": "PreviewImage",
+      "pos": [1020, 0],
+      "size": [400, 400],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {"name": "images", "type": "IMAGE", "link": 6}
+      ],
+      "outputs": [],
+      "title": "Mask Preview",
+      "type": "PreviewImage",
+      "flags": {}
+    },
+    {
+      "id": 7,
+      "type": "SaveImage",
+      "pos": [1020, 440],
+      "size": [400, 200],
+      "properties": {},
+      "widgets_values": ["sam3_text_mask"],
+      "inputs": [
+        {"name": "images", "type": "IMAGE", "link": 6}
+      ],
+      "outputs": [],
+      "title": "Save Mask",
+      "type": "SaveImage",
+      "flags": {}
+    }
+  ],
+  "links": [
+    [1, 1, 0, 4, 1, "IMAGE"],
+    [2, 2, 0, 4, 0, "MODEL"],
+    [3, 2, 1, 3, 0, "CLIP"],
+    [4, 3, 0, 4, 2, "CONDITIONING"],
+    [5, 4, 0, 5, 0, "MASK"],
+    [6, 5, 0, 6, 0, "IMAGE"]
+  ],
+  "groups": [
+    {"title": "Feature 1: Text Prompt Image Segmentation", "bounding": [0, -50, 1450, 530], "color": "#3f789e"}
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [0, 0]
+    }
+  },
+  "version": 0.4
+}
